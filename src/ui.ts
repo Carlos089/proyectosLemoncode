@@ -150,7 +150,7 @@ export const mensajePlantarse = (estado: Estado): void => {
   mensajeDiv.textContent = getMensajeEstado(estado);
 };
 
-import { getEstadoPlantarse } from './modelo';
+import { getEstadoPlantarse } from './motor';
 
 // Manejar plantarse y mostrar mensaje adecuado
 export const plantarseClick = (): void => {

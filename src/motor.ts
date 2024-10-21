@@ -1,3 +1,20 @@
+import { Estado } from "./modelo";
+
+// Obtener estado del juego al plantarse
+export const getEstadoPlantarse = (): Estado => {
+  if (puntuacion === 7.5) {
+    return 'ENHORABUENA';
+  }
+  if (puntuacion >= 6) {
+    return 'CASI';
+  }
+  if (puntuacion === 5) {
+    return 'CANGUELO';
+  } else {
+    return 'CONSERVADOR';
+  }
+};
+
 // Generar número aleatorio entre 1 y 10
 export const dameNumeroAleatorio = (): number => Math.floor(Math.random() * 10) + 1;
 

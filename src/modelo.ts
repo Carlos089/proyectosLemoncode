@@ -9,21 +9,6 @@ export const setPuntuacion = (nuevaPuntuacion: number): void => {
 // Tipo para definir los diferentes estados del juego
 export type Estado = 'CONSERVADOR' | 'CANGUELO' | 'CASI' | 'ENHORABUENA';
 
-// Obtener estado del juego al plantarse
-export const getEstadoPlantarse = (): Estado => {
-  if (puntuacion === 7.5) {
-    return 'ENHORABUENA';
-  }
-  if (puntuacion >= 6) {
-    return 'CASI';
-  }
-  if (puntuacion === 5) {
-    return 'CANGUELO';
-  } else {
-    return 'CONSERVADOR';
-  }
-};
-
 // Obtener mensaje correspondiente a cada estado del juego
 export const getMensajeEstado = (estado: Estado): string => {
   switch (estado) {
