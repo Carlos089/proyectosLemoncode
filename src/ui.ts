@@ -1,5 +1,14 @@
-// Función genérica para validar elementos del DOM y asegurarse de que son del tipo esperado
-export const elementoEsValido = <T extends HTMLElement>(
+import {
+  pedirNuevaCarta,
+  getEstadoPlantarse,
+  getMensajeEstado,
+  getPartidaPuntuacion,
+  setPartidaVerQuePasaMode,
+  getPartidaVerQuePasaMode,
+  resetPartida,
+} from './motor';
+
+const elementoEsValido = <T extends HTMLElement>(  // Validación y obtencion de elementos del DOM
   elemento: Element | null,
   tipo: { new (): T },
   descripcion: string,
@@ -46,52 +55,48 @@ export const plantarseButton = elementoEsValido(
   HTMLButtonElement,
   'Boton Plantarse',
 );
+export const container = elementoEsValido(
+  document.getElementById('confetti-container'),
+  HTMLDivElement,
+  'Div contenedor Confeti',
+);
 
-// Inicializar visibilidad de botones oportunos
-const initializeButtonVisibility = (): void => {
+export const initializeButtonVisibility = (): void => { // Inicializo visibilidad de los botones
   reiniciarButton.style.visibility = 'hidden';
   verQuePasaButton.style.visibility = 'hidden';
   plantarseButton.style.visibility = 'hidden';
 };
-initializeButtonVisibility();
 
-pedirButton.addEventListener('click', () => {
-  plantarseButton.style.visibility = 'visible';
-});
+const mostrarConfeti = (numPieces = 100): void => {  // Mostrar confeti
+  if (container) {
+    container.classList.remove('oculto');   // quito clase 'oculto' para asegurar que contenedor sea visible
+    container.innerHTML = '';              // Limpio contenido del contenedor
 
-verQuePasaButton.addEventListener('click', () => {
-  verQuePasaButton.disabled = true;
-})
+    for (let i = 0; i < numPieces; i++) {
+      const piece = document.createElement('div');  // Creo elemento div para representar una pieza de confeti
+      piece.classList.add('confetti-piece');        // Agrego clase 'confetti-piece' para aplicar estilos CSS
 
-import { puntuacion } from './modelo';
+      piece.style.left = Math.random() * 100 + '%'; // Establezco posición horizontal de confeti de forma aleatoria
 
-// Mostrar puntuación actualizada en el DOM
-export const muestraPuntuacion = (): void => {
-  if (puntuacion === 7.5) {
-    pintarMensajeResultado(`¡Enhorabuena! Has alcanzado 7.5`);
-    deshabilitarBotones();
+      const hue = Math.floor(Math.random() * 360);  // Color aleatorio usando modelo HSL con tono (hue) alea. entre 0 y 360
+      piece.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+
+      piece.style.animationDuration = 2 + Math.random() * 3 + 's'; // Defino duracion de animacion alea. entre 2 y 5 segundos
+
+      piece.style.animationDelay = Math.random() * 2000 + 'ms'; // Defino retardo aleatorio para el inicio de la animacion
+
+
+      container.appendChild(piece); // Anado pieza de confeti al contenedor en el DOM
+
+    }
   }
-  if (puntuacion > 7.5) {
-    pintarMensajeResultado(`Puntuacion sobrepasada: ${puntuacion} GAME OVER`);
-    deshabilitarBotones();
-  }
 };
 
-// Pintar mensaje
-const pintarMensajeResultado = (mensaje: string) => {
-  puntuacionDiv.innerHTML = mensaje;
+const actualizarDisplayPuntuacion = (): void => {  // Actualizo puntuacion en DOM
+  puntuacionDiv.textContent = `Puntuación actual: ${getPartidaPuntuacion()}`;
 };
 
-// Deshabilitar botones al final del juego
-export const deshabilitarBotones = (): void => {
-  pedirButton.disabled = true;
-  plantarseButton.disabled = true;
-  reiniciarButton.style.visibility = 'visible';
-  verQuePasaButton.style.visibility = 'visible';
-};
-
-// Obtener URL de la imagen de la carta según su número
-export const dameUrlCarta = (numeroCarta: number): string => {
+const dameUrlCarta = (numeroCarta: number): string => {  // Obtener URL de la carta
   switch (numeroCarta) {
     case 1:
       return '1_as-copas.jpg';
@@ -118,59 +123,50 @@ export const dameUrlCarta = (numeroCarta: number): string => {
   }
 };
 
-// Pintar imagen de la carta en el DOM
-export const pintarUrlCarta = (urlCarta: string) => {
+const pintarUrlCarta = (urlCarta: string): void => {  // Pinto carta en el DOM
   if (cartaImg) cartaImg.src = `src/img/${urlCarta}`;
 };
 
-// Sumar puntos actuales con los nuevos puntos
-export const actualizarPuntuacionEnDom = (puntosSumados: number): void => {
-  mensajeDiv.textContent = puntosSumados.toString();
+const muestraPuntuacion = (): void => {  // Mostrar puntuacion y mensajes
+  const puntuacion = getPartidaPuntuacion();
+  const verQuePasaMode = getPartidaVerQuePasaMode();
+
+  if (puntuacion === 7.5) {
+    if (verQuePasaMode) {
+      mensajeDiv.textContent = `¡Podrías haber ganado! Alcanzaste ${puntuacion} después de plantarte`;
+    } else {
+      mensajeDiv.textContent = `¡ENHORABUENA! Has alcanzado ${puntuacion} !!`;
+      mostrarConfeti();
+    }
+    deshabilitarBotones();
+    verQuePasaButton.style.visibility = 'hidden';
+  } else if (puntuacion > 7.5) {
+    if (verQuePasaMode) {
+      mensajeDiv.textContent = `Te hubieras pasado con ${puntuacion} si hubieras seguido`;
+    } else {
+      mensajeDiv.textContent = `Puntuación sobrepasada: ${puntuacion} GAME OVER`;
+    }
+    deshabilitarBotones();
+    verQuePasaButton.style.visibility = 'hidden';
+  } else if (puntuacion < 7.5) {
+    if (verQuePasaMode) {
+      mensajeDiv.textContent = `Aún no hubieras llegado con ${puntuacion} de haber seguido`;
+      deshabilitarBotones();
+      verQuePasaButton.style.visibility = 'hidden';
+    } else {
+      actualizarDisplayPuntuacion();
+    }
+  }
 };
 
-import { pedirCarta } from './motor';
-
-import { manejarNuevaPuntuacion } from './shell';
-
-// Pedir nueva carta y actualizar la UI
-export const pedirCartaYActualizarUI = (): void => {
-  const { carta, puntosSumados } = pedirCarta(); // Obtengo carta y puntos sumados
-
-  const urlCarta = dameUrlCarta(carta); // Obtengo URL de la carta
-  pintarUrlCarta(urlCarta);
-
-  manejarNuevaPuntuacion(puntosSumados);
-  muestraPuntuacion();
+const deshabilitarBotones = (): void => {
+  pedirButton.disabled = true;
+  plantarseButton.disabled = true;
+  reiniciarButton.style.visibility = 'visible';
+  verQuePasaButton.style.visibility = 'visible';
 };
 
-import { getMensajeEstado, Estado } from './modelo';
-
-// Mostrar mensaje según estado del juego
-export const mensajePlantarse = (estado: Estado): void => {
-  mensajeDiv.textContent = getMensajeEstado(estado);
-};
-
-import { getEstadoPlantarse } from './motor';
-
-// Manejar plantarse y mostrar mensaje adecuado
-export const plantarseClick = (): void => {
-  deshabilitarBotones();
-  const estado: Estado = getEstadoPlantarse();
-  mensajePlantarse(estado);
-};
-
-// Manejar ver que pasa
-export const verQuePasa = (): void => {
-  const { carta, puntosSumados } = pedirCarta(); // Obtener carta y puntos
-  const urlCarta = dameUrlCarta(carta); // Obtener URL de la carta
-
-  pintarUrlCarta(urlCarta); // Pinta carta en DOM
-  manejarNuevaPuntuacion(puntosSumados); // Actualiza puntos en estado y el DOM
-  deshabilitarBotones();
-};
-
-// Habilitar botones al reiniciar el juego
-export const habilitarBotones = (): void => {
+const habilitarBotones = (): void => {
   pedirButton.disabled = false;
   plantarseButton.disabled = false;
   plantarseButton.style.visibility = 'hidden';
@@ -179,24 +175,47 @@ export const habilitarBotones = (): void => {
   verQuePasaButton.disabled = false;
 };
 
-// Limpiar mensaje del DOM
-export const limpiarMensaje = (): void => {
+const limpiarMensaje = (): void => {
   mensajeDiv.textContent = '';
-  puntuacionDiv.textContent = '';
 };
 
-// Reiniciar imagen de la carta
-export const reiniciarCarta = (): void => {
+const reiniciarCarta = (): void => {
   cartaImg.src = 'src/img/back.jpg';
 };
 
-import { setPuntuacion, crearNuevaPartida } from './modelo';
+// Manejo de eventos
+
+export const pedirCarta = (): void => {
+  const { numeroCarta } = pedirNuevaCarta();
+  const urlCarta = dameUrlCarta(numeroCarta);
+  pintarUrlCarta(urlCarta);
+  actualizarDisplayPuntuacion();
+  muestraPuntuacion();
+};
+
+export const verQuePasa = (): void => {
+  setPartidaVerQuePasaMode(true);
+  verQuePasaButton.disabled = true;
+  pedirCarta();
+  deshabilitarBotones();
+};
+
+export const plantarseClick = (): void => {
+  deshabilitarBotones();
+  const estado = getEstadoPlantarse();
+  const mensaje = getMensajeEstado(estado);
+  mensajeDiv.textContent = mensaje;
+};
 
 export const reiniciarJuego = (): void => {
-  const nuevaPartida = crearNuevaPartida(); // Inicializa nueva partida
-  setPuntuacion(nuevaPartida.puntuacion); // Usa puntuacion de nueva partida
-  limpiarMensaje(); // Limpio mensajes de la UI
-  muestraPuntuacion(); // Muestro puntuacion en la UI
-  habilitarBotones(); // Habilito botones
-  reiniciarCarta(); // Reseteo imagen de la carta
+  resetPartida();
+  limpiarMensaje();
+  habilitarBotones();
+  reiniciarCarta();
+  mostrarConfeti(0);
+  actualizarDisplayPuntuacion();
 };
+
+pedirButton.addEventListener('click', () => { // Mostrar boton de plantarse cuando se pide una carta
+  plantarseButton.style.visibility = 'visible';
+});

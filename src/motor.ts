@@ -1,50 +1,66 @@
-import { Estado } from "./modelo";
+import { partida, Estado } from './modelo';
 
-// Obtener estado del juego al plantarse
-export const getEstadoPlantarse = (): Estado => {
-  if (puntuacion === 7.5) {
-    return 'ENHORABUENA';
-  }
-  if (puntuacion >= 6) {
-    return 'CASI';
-  }
-  if (puntuacion === 5) {
-    return 'CANGUELO';
-  } else {
-    return 'CONSERVADOR';
-  }
-};
+const dameNumeroAleatorio = (): number => Math.floor(Math.random() * 10) + 1;
 
-// Generar número aleatorio entre 1 y 10
-export const dameNumeroAleatorio = (): number => Math.floor(Math.random() * 10) + 1;
-
-// Ajustar número de la carta en caso de que sea una figura 10, 11 o 12
 export const dameNumeroCarta = (numeroAleatorio: number): number =>
   numeroAleatorio > 7 ? numeroAleatorio + 2 : numeroAleatorio;
 
-// Obtener puntos de la carta según su número
 export const obtenerPuntosCarta = (numeroCarta: number): number =>
   numeroCarta > 7 ? 0.5 : numeroCarta;
 
-import { puntuacion } from "./modelo";
-
-// Sumar puntos actuales con los nuevos puntos
-export const sumarPuntos = (puntos: number): number => {
-  return puntuacion + puntos;
-};
-
-import { setPuntuacion } from "./modelo";
-
-// Actualizar puntos y mostrar la puntuación en el DOM
-export const actualizarPuntos = (puntosNuevos: number): void => {
-  setPuntuacion(puntosNuevos);
-};
-
-// Pedir nueva carta y devolver tanto carta como puntos
-export const pedirCarta = (): { carta: number, puntosSumados: number } => {
+export const pedirNuevaCarta = (): { numeroCarta: number } => {
   const numeroAleatorio = dameNumeroAleatorio();
-  const carta = dameNumeroCarta(numeroAleatorio);
-  const puntosCarta = obtenerPuntosCarta(carta);
-  const puntosSumados = sumarPuntos(puntosCarta);
-  return { carta, puntosSumados };
+  const numeroCarta = dameNumeroCarta(numeroAleatorio);
+  const puntosCarta = obtenerPuntosCarta(numeroCarta);
+  partida.puntuacion += puntosCarta;
+  partida.cartas.push(numeroCarta); // Nuevo metodo: modifico el array original al incluir nuevo elemento
+  return { numeroCarta };
+};
+
+export const getEstadoPlantarse = (): Estado => {
+  if (partida.puntuacion === 7.5) {
+    return 'ENHORABUENA';
+  }
+  if (partida.puntuacion >= 6 && partida.puntuacion < 7.5) {
+    return 'CASI';
+  }
+  if (partida.puntuacion >= 5 && partida.puntuacion < 6) {
+    return 'CANGUELO';
+  }
+  if (partida.puntuacion >= 0 && partida.puntuacion < 5) {
+    return 'CONSERVADOR';
+  }
+  throw new Error('Puntuación fuera de rango');
+};
+
+export const getMensajeEstado = (estado: Estado): string => {
+  switch (estado) {
+    case 'CONSERVADOR':
+      return `Has sido muy conservador, te has plantado con tan solo ${partida.puntuacion}`;
+    case 'CANGUELO':
+      return `Te ha entrado el canguelo, ¿eh? Te has plantado con ${partida.puntuacion}`;
+    case 'CASI':
+      return `Casi casi... Te plantaste con ${partida.puntuacion}`;
+    case 'ENHORABUENA':
+      return `¡Lo has clavado! ¡Enhorabuena!`;
+    default:
+      return '';
+  }
+};
+
+export const getPartidaPuntuacion = (): number => partida.puntuacion;
+
+export const setPartidaVerQuePasaMode = (value: boolean): void => {
+  partida.verQuePasaMode = value; // con set establezco o modifico el valor de la propiedad verQuePasaMode del objeto partida
+};
+
+export const getPartidaVerQuePasaMode = (): boolean => partida.verQuePasaMode; /** con get obtengo el valor y 
+me permite encapsular el acceso a la propiedad */
+
+
+export const resetPartida = (): void => {
+  partida.puntuacion = 0;
+  partida.activa = true;
+  partida.cartas = [];
+  partida.verQuePasaMode = false;
 };

@@ -33,11 +33,23 @@ button {
   color: white;
   border: none;
   padding: 5px 20px;
-  margin: 0px;
+  margin: 3px;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 15px;
   font-size: 1em;
   transition: background-color 0.3s ease;
+}
+
+.colorPlan:hover, .colorPlan {
+  background-color: brown;
+}
+
+.colorRei:hover, .colorRei {
+  background-color: rgb(132, 201, 12);
+}
+
+.colorVer, .colorVer {
+  background-color: rgb(196, 38, 75);
 }
 
 button:hover {
@@ -50,12 +62,45 @@ button:disabled {
 }
 
 #mensaje {
-  font-size: 1em;
+  font-size: em;
   color: white;
   margin: 5px;
 }
 
-#reiniciar,
-#verQuePasa {
-  margin-top: 10px;
+/* #reiniciar,
+#verQuePasa,
+#plantarse {
+  margin-top: 3px;
+} */
+
+#confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  opacity: 0.8;
+  animation: confetti-fall linear infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
+
+.oculto {
+  display: none;
 }

@@ -1,22 +1,9 @@
-README
-Proyecto: Refactorizacion de Codigo para Modularidad
+Este es el proyecto para el tema 7 Imports de iniciacion a javascript.
 
+Observando los fallos que tuve en el anterior tema, y, aprovechando que tenia que trabajar sobre el mismo proyecto, he aprovechado para corregir la chapuza que hice, donde supongo que ahora si seria merecedor de un notable sobre el tema 6 Imports, como ya me otorgaron.
 
-En este proyecto muestro como refactorizar todo el codigo que solia tener en un mismo fichero, de tal forma que ahora queda todo mucho mas modular, para asi poder en un futuro pues, de manera muy sencilla:
+He testeado y probado el codigo y me ha dado ok.
 
-Reciclar funciones
-Corregir errores
-Implementar codigo
-Mejorar legibilidad y escalabilidad del codigo
-Mantenibilidad
+Gracias
 
-
-Haciendolo todo mucho mas facil para mantener o ampliar un proyecto, ya sea porque cambie de manos a otro programador, o no, sera mucho mejor esta forma.
-
-
-Este es el proyecto del tema 6 Imports de iniciacion a Javascript impartido por Lemoncode.
-
-
-
-Autor
-Juan C. Martin
+Juan Carlos M.
